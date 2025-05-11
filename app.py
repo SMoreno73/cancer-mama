@@ -9,16 +9,29 @@ from PIL import Image
 def download_file_from_google_drive(file_id):
     url = f"https://drive.google.com/uc?id={file_id}"
     response = requests.get(url)
-    return BytesIO(response.content)
+    if response.status_code == 200:
+        return BytesIO(response.content)
+    else:
+        st.error("Error al descargar el archivo desde Google Drive")
+        return None
 
-# ID del archivo de Google Drive (reemplazar con el ID de tu archivo)
-file_id = '1GcaNza4l5ozH3Z8t5fMGAmpZMCw8yACp'  # El ID de tu archivo en Google Drive
+# ID del archivo de Google Drive
+file_id = '1GcaNza4l5ozH3Z8t5fMGAmpZMCw8yACp'  # Reemplazar con el ID real del archivo en Google Drive
 
 # Descargar el archivo .pth desde Google Drive
 st.write("Cargando el modelo desde Google Drive...")
 model_file = download_file_from_google_drive(file_id)
-model = torch.load(model_file)
-model.eval()
+
+if model_file:
+    try:
+        # Intentar cargar el modelo
+        model = torch.load(model_file)
+        model.eval()
+        st.write("Modelo cargado exitosamente desde Google Drive.")
+    except Exception as e:
+        st.error(f"Error al cargar el modelo: {e}")
+else:
+    st.error("No se pudo descargar el modelo.")
 
 # Configurar la interfaz de Streamlit
 st.title('Clasificación de Imágenes con ResNet')
