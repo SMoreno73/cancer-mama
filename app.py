@@ -1,9 +1,11 @@
+
 import streamlit as st
 import torch
 import requests
 import os
 from io import BytesIO
 from PIL import Image
+import torchvision.models as models
 
 # Función para descargar el archivo desde Google Drive y guardarlo localmente
 def download_file_from_google_drive(file_id, destination):
@@ -32,8 +34,9 @@ else:
 
 if model_file:
     try:
-        # Intentar cargar el modelo desde el archivo temporal
-        model = torch.load(model_file)
+        # Opción 1: Si el modelo solo contiene los pesos, carga la arquitectura primero
+        model = models.resnet50(pretrained=False)  # O cualquier modelo que estés usando
+        model.load_state_dict(torch.load(model_file))  # Cargar solo los pesos
         model.eval()
         st.write("Modelo cargado exitosamente desde Google Drive.")
     except Exception as e:
