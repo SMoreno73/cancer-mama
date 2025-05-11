@@ -24,8 +24,8 @@ model_file = download_file_from_google_drive(file_id)
 
 if model_file:
     try:
-        # Intentar cargar el modelo
-        model = torch.load(model_file)
+        # Intentar cargar el modelo con weights_only=False
+        model = torch.load(model_file, weights_only=False)
         model.eval()
         st.write("Modelo cargado exitosamente desde Google Drive.")
     except Exception as e:
@@ -38,14 +38,16 @@ st.title('Clasificación de Imágenes con ResNet')
 st.write('Sube una imagen para clasificarla.')
 
 # Cargar imagen
-uploaded_file = st.file_uploader("Elige una imagen", type=["jpg", "png", "jpeg"])
+uploaded_file = st.file_uploader("Elige una imagen", type=["jpg", "png", "jpeg", "bmp"])
 if uploaded_file is not None:
     # Mostrar imagen
     image = Image.open(uploaded_file)
     st.image(image, caption='Imagen subida.', use_column_width=True)
 
-    # Preprocesamiento de la imagen (ajustar según sea necesario para tu modelo)
+    # Convertir imagen a RGB si es necesario
     image = image.convert("RGB")
+
+    # Preprocesamiento de la imagen (ajustar según sea necesario para tu modelo)
     image = np.array(image)
     image = torch.from_numpy(image).float()
     image = image.unsqueeze(0)  # Agregar una dimensión para el batch
